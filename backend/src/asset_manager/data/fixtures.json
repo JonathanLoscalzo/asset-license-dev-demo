@@ -1,0 +1,56 @@
+{
+  "catalog": {
+    "assets": [
+      {
+        "id": "aat1",
+        "brand": "Apple",
+        "model": "Macbook Pro 2020 I5 10gen 16gb 512gb ssd",
+        "type": "laptop"
+      },
+      {
+        "id": "aat2",
+        "brand": "Lenovo",
+        "model": "Ideapad I7 9gen 16gb 1tb ssd",
+        "type": "laptop"
+      },
+      {
+        "id": "aat3",
+        "brand": "Dell",
+        "model": "XPS I5 10gen 16gb 512ssd",
+        "type": "laptop"
+      },
+      {
+        "id": "aat4",
+        "brand": "Logitech",
+        "model": "QWERTY Mechanical 80%",
+        "type": "keyboard"
+      },
+      {
+        "id": "aat5",
+        "brand": "Logitech",
+        "model": "G403 Laser",
+        "type": "mouse"
+      },
+      {
+        "id": "aat6",
+        "brand": "Samsung",
+        "model": "V27F350 27inch 60hz Full HD",
+        "type": "monitor"
+      }
+    ],
+    "licences": [
+      {
+        "id": "lnc1",
+        "software": "jira"
+      },
+      {
+        "id": "lnc2",
+        "software": "slack"
+      },
+      {
+        "id": "lnc3",
+        "software": "webmail"
+      }
+    ]
+  }
+}
