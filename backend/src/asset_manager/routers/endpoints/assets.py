@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from asset_manager.data.repos.assets import AssetRepository
-from asset_manager.data.repos.exceptions import ItemNotFound
+from asset_manager.data.exceptions import ItemNotFound
 from asset_manager.deps import get_asset_repository, get_current_user
 from asset_manager.models.auth import LoginUser
 
