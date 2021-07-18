@@ -31,7 +31,7 @@ class Developer(CreateDev, BaseModel):
 class License(BaseModel):
     id: uid
     software: str
-    user: Optional[Union[Developer, uid]]
+    users: List[Union[Developer, uid]] = []
 
     class Config:
         orm_mode = True
@@ -48,17 +48,10 @@ class Asset(BaseModel):
         orm_mode = True
 
 
-class AssetRelationship:
-    assets: List[Asset] = []
+class FullDeveloper(Developer):
+    assets: List[Union[Asset, uid]] = []
+    licenses: List[Union[License, uid]] = []
 
-
-class LicenseRelationship:
-    licenses: List[License] = []
-
-
-class FullDeveloper(
-    Developer, AssetRelationship, LicenseRelationship, BaseModel
-):
     def create_model_from_devmongo(
         dev: DeveloperMongo,
     ):
@@ -66,6 +59,6 @@ class FullDeveloper(
             id=str(dev.id),
             fullname=dev.fullname,
             active=dev.active,
-            licenses=map(License.parse_obj, dev.licenses),
-            assets=map(Asset.parse_obj, dev.assets),
+            licenses=dev.licenses,
+            assets=dev.assets,
         )
