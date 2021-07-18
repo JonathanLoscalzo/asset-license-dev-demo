@@ -18,7 +18,7 @@ async def get_licenses(
     repo: LicenseRepository = Depends(get_license_repository),
     _: LoginUser = Depends(get_current_user),
 ) -> List[License]:
-    return repo.get_all()
+    return list(map(License.from_orm, repo.get_all()))
 
 
 @router.get("/{id}", response_model=License)
@@ -29,7 +29,7 @@ async def get_license(
 ) -> License:
     # TODO: add services/useCase and middleware
     try:
-        asset = repo.get(id)
+        asset = License.from_orm(repo.get(id))
         return asset
     except ItemNotFound as e:
         raise HTTPException(status_code=404, detail="Item not found") from e
