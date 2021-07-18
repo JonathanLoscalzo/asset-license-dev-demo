@@ -77,8 +77,12 @@ async def get_licenses(id: uid):
 
 
 @router.patch("/{user_id}/licenses/{license_id}")
-async def add_license(user_id, license_id):
-    pass
+async def add_license(
+    user_id,
+    license_id,
+    service: DeveloperService = Depends(get_developer_service),
+):
+    return service.add_license(user_id, license_id)
 
 
 @router.delete("/{user_id}/licenses/{license_id}")

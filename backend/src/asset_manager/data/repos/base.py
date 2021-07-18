@@ -1,4 +1,4 @@
-from typing import Any, TypeVar, Generic
+from typing import Any, List, TypeVar, Generic
 from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
 from pymongo.database import Database
@@ -36,15 +36,30 @@ class MongoRepository(Generic[T]):
     def get_by_filter(self, filter: dict) -> T:
         return self.collection().find_one(filter)
 
+    def get_all_by_filter(self, filter: dict) -> List[T]:
+        return self.collection().find(filter)
+
     def add(self, obj: T) -> Any:
         return self.collection().insert_one(obj.dict()).inserted_id
 
     def update(self, id, obj) -> Any:
+        return self.find_and_update(id, {}, obj)
+
+    def find_and_update(self, id, filter: dict, obj) -> Any:
         oid = ObjectId(id) if ObjectId.is_valid(id) else id
         res = self.collection().find_one_and_update(
-            {"$or": [{"id": id}, {"_id": oid}]},
+            {"$or": [{"id": id}, {"_id": oid}], **filter},
             obj,
             return_document=ReturnDocument.AFTER,
+        )
+
+        return res
+
+    def find_all_and_update(self, filter: dict, obj) -> Any:
+        res = self.collection().update_many(
+            {**filter},
+            obj,
+            upsert=True,
         )
 
         return res

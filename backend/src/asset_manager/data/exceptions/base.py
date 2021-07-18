@@ -39,3 +39,9 @@ class UserJustHaveAssetException(AssetManagerException):
             f"Developer {dev_id} just have a this asset ({asset_id})!"
         )
         super().__init__()
+
+
+class DeveloperInactiveException(AssetManagerException):
+    def __init__(self, dev_id):
+        self.message = f"Developer {dev_id} is not activated!"
+        super().__init__()

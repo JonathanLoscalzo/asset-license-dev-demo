@@ -1,8 +1,10 @@
 from typing import List
 from asset_manager.data.exceptions.base import (
     AssetHasAssignedException,
+    DeveloperInactiveException,
     ItemNotFound,
     UserJustHaveAssetException,
+    UserJustHaveLicenseException,
 )
 from asset_manager.data.repos.assets import AssetRepository
 from asset_manager.data.repos.developers import DeveloperRepository
@@ -54,9 +56,18 @@ class DeveloperService:
         return self._change_active_user(uid, True)
 
     def deactivate(self, uid):
+
+        dev = self.__repository.find_and_update(
+            uid, {"active": True}, {"$set": {"assets": [], "licenses": []}}
+        )
+
+        self._asset_repo.find_all_and_update(
+            {"user": ObjectId(uid)}, {"$set": {"user": None}}
+        )
+
         return self._change_active_user(uid, False)
 
-    def add_asset(self, developer_id, asset_id):
+    def add_asset(self, developer_id, asset_id) -> OutputResponse[dict]:
         """Add asset relationship to current user
 
         Constrains:
@@ -80,10 +91,14 @@ class DeveloperService:
         if relationship:
             raise UserJustHaveAssetException(asset.user, asset.id)
 
-        dev = self.__repository.update(
+        dev = self.__repository.find_and_update(
             developer_id,
+            {"active": True},
             {"$push": {"assets": asset.id}},
         )
+
+        if dev is None:
+            raise DeveloperInactiveException(developer_id)
 
         self._asset_repo.update(
             asset.id, {"$set": {"user": ObjectId(developer_id)}}
@@ -99,5 +114,43 @@ class DeveloperService:
             message="Updated relationship",
         )
 
-    def add_license(self, developer_id, license_id):
-        pass
+    def add_license(self, developer_id, license_id) -> OutputResponse[dict]:
+        """add a licenses to a user
+
+        Args:
+            developer_id (ObjectId): str from an ObjectId
+            license_id (uid): in this case is the code
+
+        Raises:
+            UserJustHaveLicenseException: if the user just have the license, it raises an exc.
+
+        Returns:
+            OutputResponse: a plain new Developer
+        """
+        license = self._license_repo.get(license_id)
+
+        relationship = self.__repository.get_by_filter(
+            {"_id": ObjectId(developer_id), "licenses": {"$in": [license.id]}}
+        )
+
+        if relationship:
+            raise UserJustHaveLicenseException(license_id, dev_id=developer_id)
+
+        dev = self.__repository.find_and_update(
+            developer_id,
+            {"active": True},
+            {"$push": {"licenses": license.id}},
+        )
+
+        if dev is None:
+            raise DeveloperInactiveException(developer_id)
+
+        return OutputResponse[dict](
+            status=ApiStatus.ok,
+            data={
+                "developer": FullDeveloper.create_model_from_devmongo(
+                    DeveloperMongo.parse_obj(dev)
+                )
+            },
+            message="Updated relationship",
+        )
