@@ -1,13 +1,18 @@
-from typing import List, Optional
+from typing import List, Union
+from asset_manager.data.schemas.base import (
+    BaseMongoModel,
+    CreateBaseMongoModel,
+    PydanticObjectId,
+)
 
-from asset_manager.data.schemas.base import BaseMongoModel, PydanticObjectId
 
 class DeveloperMongo(BaseMongoModel):
-    _id: PydanticObjectId
     fullname: str
     active: bool = True
-    assets: List[PydanticObjectId] = []
-    licenses: List[PydanticObjectId] = []
+    assets: List[Union[PydanticObjectId, str]] = []
+    licenses: List[Union[PydanticObjectId, str]] = []
 
-class CreateDeveloperMongo(DeveloperMongo):
-    _id: Optional[PydanticObjectId]
+
+class CreateDeveloperMongo(CreateBaseMongoModel):
+    fullname: str
+    active: bool = True

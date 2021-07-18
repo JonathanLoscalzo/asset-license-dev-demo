@@ -17,4 +17,10 @@ class PydanticObjectId(BsonObjectId):
 
 class BaseMongoModel(BaseModel):
     _id: PydanticObjectId
-    id: Optional[PydanticObjectId] = Field(..., alias='_id')
+    id: Optional[PydanticObjectId] = Field(..., alias="_id")
+
+
+class CreateBaseMongoModel(BaseModel):
+    # _id: Optional[PydanticObjectId]
+    # id: Optional[PydanticObjectId] = Field(..., alias="_id")
+    pass
