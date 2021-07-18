@@ -1,6 +1,6 @@
-from typing import TypeVar, Generic
+from typing import Any, TypeVar, Generic
 from pymongo.database import Database
-from asset_manager.data.repos.exceptions import ItemNotFound
+from asset_manager.data.exceptions import ItemNotFound
 
 from asset_manager.data.schemas.base import BaseMongoModel
 
@@ -28,6 +28,7 @@ class MongoRepository(Generic[T]):
         if item is None:
             raise ItemNotFound(id)
 
-        return self.generic_class(
-            **item
-        )
+        return self.generic_class(**item)
+
+    def add(self, obj: T) -> Any:
+        return self.collection().insert_one(obj.dict()).inserted_id
