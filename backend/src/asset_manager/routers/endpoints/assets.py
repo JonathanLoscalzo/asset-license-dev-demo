@@ -21,7 +21,7 @@ async def get_assets(
     current_user: LoginUser = Depends(get_current_user),
     repo: AssetRepository = Depends(get_asset_repository),
 ) -> List[Asset]:
-    return repo.get_all()
+    return list(map(Asset.from_orm, repo.get_all()))
 
 
 @router.get("/{id}", response_model=Asset)
@@ -32,7 +32,7 @@ async def get_asset(
 ) -> Asset:
     # TODO: add services and middleware
     try:
-        asset = repo.get(id)
+        asset = Asset.from_orm(repo.get(id))
         return asset
     except ItemNotFound as e:
         raise HTTPException(status_code=404, detail="Item not found") from e
