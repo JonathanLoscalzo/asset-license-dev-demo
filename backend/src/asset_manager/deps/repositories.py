@@ -5,6 +5,7 @@ from asset_manager.data.repos.developers import DeveloperRepository
 from asset_manager.data.repos.license import LicenseRepository
 from asset_manager.deps import get_db
 
+
 def get_asset_repository(db=Depends(get_db)):
     return AssetRepository(db)
 
