@@ -1,10 +1,8 @@
 from typing import List
-from asset_manager.data.repos.developers import DeveloperRepository
 from asset_manager.data.services.developer import DeveloperService
 from asset_manager.models.auth import LoginUser
 from fastapi import APIRouter, Depends
 from asset_manager.deps import (
-    get_asset_repository,
     get_current_user,
     get_developer_service,
 )
@@ -27,11 +25,9 @@ router = APIRouter(
 @router.get("/", response_model=List[FullDeveloper])
 async def get_developers(
     current_user: LoginUser = Depends(get_current_user),
-    repo: DeveloperRepository = Depends(get_asset_repository),
+    service: DeveloperService = Depends(get_developer_service),
 ):
-    devs = repo.get_all()
-
-    return devs
+    return service.get_all()
 
 
 @router.post("/", response_model=Developer)
@@ -62,8 +58,12 @@ async def get_assets(id: uid):
 
 
 @router.patch("/{user_id}/assets/{asset_id}")
-async def add_asset(user_id: uid, asset_id: uid):
-    pass
+async def add_asset(
+    user_id: uid,
+    asset_id: uid,
+    service: DeveloperService = Depends(get_developer_service),
+):
+    return service.add_asset(user_id, asset_id)
 
 
 @router.delete("/{user_id}/assets/{asset_id}")
