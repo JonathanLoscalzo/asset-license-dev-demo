@@ -67,9 +67,13 @@ async def add_asset(
     return service.add_asset(user_id, asset_id)
 
 
-@router.delete("/{user_id}/assets/{asset_id}")
-def remove_asset(user_id, asset_id):
-    pass
+@router.delete("/{user_id}/assets/{asset_id}", response_model=OutputResponse)
+def remove_asset(
+    user_id,
+    asset_id,
+    service: DeveloperService = Depends(get_developer_service),
+):
+    return service.remove_asset(user_id, asset_id)
 
 
 @router.get("/{id}/licenses", response_model=List[Asset])
@@ -87,5 +91,9 @@ async def add_license(
 
 
 @router.delete("/{user_id}/licenses/{license_id}")
-def remove_license(user_id, license_id):
-    pass
+def remove_license(
+    user_id,
+    license_id,
+    service: DeveloperService = Depends(get_developer_service),
+):
+    return service.remove_license(user_id, license_id)

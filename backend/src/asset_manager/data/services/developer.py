@@ -3,6 +3,8 @@ from asset_manager.data.exceptions.base import (
     AssetHasAssignedException,
     DeveloperInactiveException,
     ItemNotFound,
+    UserAndAssetNotRelatedException,
+    UserAndLicenseNotRelatedException,
     UserJustHaveAssetException,
     UserJustHaveLicenseException,
 )
@@ -63,7 +65,7 @@ class DeveloperService:
 
     def deactivate(self, uid) -> OutputResponse:
 
-        dev = self.__repository.find_and_update(
+        _ = self.__repository.find_and_update(
             uid, {"active": True}, {"$set": {"assets": [], "licenses": []}}
         )
 
@@ -134,7 +136,8 @@ class DeveloperService:
             license_id (uid): in this case is the code
 
         Raises:
-            UserJustHaveLicenseException: if the user just have the license, it raises an exc.
+            UserJustHaveLicenseException: if the user just have the license,
+            it raises an exc.
 
         Returns:
             OutputResponse: a plain new Developer
@@ -165,4 +168,45 @@ class DeveloperService:
                 )
             },
             message="Updated relationship",
+        )
+
+    def remove_license(self, developer_id, license_id) -> OutputResponse[dict]:
+        relationship = self.__repository.get_by_filter(
+            {"_id": ObjectId(developer_id), "licenses": {"$in": [license_id]}}
+        )
+
+        if not relationship:
+            raise UserAndLicenseNotRelatedException(developer_id, license_id)
+
+        self.__repository.update(
+            developer_id, {"$pull": {"licenses": {"$in": [license_id]}}}
+        )
+
+        return OutputResponse[dict](
+            status=ApiStatus.ok,
+            data={"dev": developer_id, "license": license_id},
+            message="Removed relationship "
+            + f"between Dev({developer_id}) and License({license_id})",
+        )
+
+    def remove_asset(self, developer_id, asset_id) -> OutputResponse[dict]:
+
+        relationship = self.__repository.get_by_filter(
+            {"_id": ObjectId(developer_id), "assets": {"$in": [asset_id]}}
+        )
+
+        if not relationship:
+            raise UserAndAssetNotRelatedException(developer_id, asset_id)
+
+        self.__repository.update(
+            developer_id, {"$pull": {"assets": {"$in": [asset_id]}}}
+        )
+
+        self._asset_repo.update(asset_id, {"$set": {"user": None}})
+
+        return OutputResponse[dict](
+            status=ApiStatus.ok,
+            data={"dev": developer_id, "asset": asset_id},
+            message=f"Removed relationship "
+            + f"between Dev({developer_id}) and Asset({asset_id})",
         )
