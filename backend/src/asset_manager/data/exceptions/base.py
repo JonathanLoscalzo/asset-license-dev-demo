@@ -25,7 +25,7 @@ class AssetHasAssignedException(AssetManagerException):
         super().__init__()
 
 
-class LicenseHasCurrentUserException(AssetManagerException):
+class UserJustHaveLicenseException(AssetManagerException):
     def __init__(self, license_id, dev_id):
         self.message = (
             f"License({license_id}) has just been assigned to User({dev_id})"
