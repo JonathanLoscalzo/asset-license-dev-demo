@@ -1,5 +1,6 @@
+from typing import Optional
 from bson.objectid import ObjectId as BsonObjectId
-from pydantic.main import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PydanticObjectId(BsonObjectId):
@@ -16,3 +17,4 @@ class PydanticObjectId(BsonObjectId):
 
 class BaseMongoModel(BaseModel):
     _id: PydanticObjectId
+    id: Optional[PydanticObjectId] = Field(..., alias='_id')
