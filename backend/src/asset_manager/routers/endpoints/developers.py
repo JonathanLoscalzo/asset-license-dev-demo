@@ -14,6 +14,7 @@ from asset_manager.models.models import (
     FullDeveloper,
     uid,
 )
+from asset_manager.models.responses import OutputResponse
 
 router = APIRouter(
     tags=["developers"],
@@ -38,18 +39,18 @@ async def add_developer(
     return service.add(developer)
 
 
-@router.post("/{id}/activate", response_model=bool)
+@router.post("/{id}/activate", response_model=OutputResponse)
 async def activate(
     id: uid, service: DeveloperService = Depends(get_developer_service)
 ):
     return service.activate(id)
 
 
-@router.post("/{id}/deactivate", response_model=bool)
+@router.post("/{id}/deactivate", response_model=OutputResponse)
 async def deactivate(
     id: uid, service: DeveloperService = Depends(get_developer_service)
 ):
-    return not service.deactivate(id)
+    return service.deactivate(id)
 
 
 @router.get("/{id}/assets", response_model=List[Asset])

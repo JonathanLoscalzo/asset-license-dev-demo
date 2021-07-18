@@ -52,10 +52,16 @@ class DeveloperService:
 
         return active
 
-    def activate(self, uid):
-        return self._change_active_user(uid, True)
+    def activate(self, uid) -> OutputResponse:
+        self._change_active_user(uid, True)
 
-    def deactivate(self, uid):
+        return OutputResponse[dict](
+            status=ApiStatus.ok,
+            data={"id": uid},
+            message=f"Developer {uid} activated",
+        )
+
+    def deactivate(self, uid) -> OutputResponse:
 
         dev = self.__repository.find_and_update(
             uid, {"active": True}, {"$set": {"assets": [], "licenses": []}}
@@ -65,7 +71,13 @@ class DeveloperService:
             {"user": ObjectId(uid)}, {"$set": {"user": None}}
         )
 
-        return self._change_active_user(uid, False)
+        self._change_active_user(uid, False)
+
+        return OutputResponse[dict](
+            status=ApiStatus.ok,
+            data={"id": uid},
+            message=f"Developer {uid} deactivated",
+        )
 
     def add_asset(self, developer_id, asset_id) -> OutputResponse[dict]:
         """Add asset relationship to current user
