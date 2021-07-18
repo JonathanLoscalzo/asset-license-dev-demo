@@ -3,7 +3,11 @@ from asset_manager.data.repos.developers import DeveloperRepository
 from asset_manager.data.services.developer import DeveloperService
 from asset_manager.models.auth import LoginUser
 from fastapi import APIRouter, Depends
-from asset_manager.deps import get_asset_repository, get_current_user, get_developer_service
+from asset_manager.deps import (
+    get_asset_repository,
+    get_current_user,
+    get_developer_service,
+)
 
 from asset_manager.models.models import (
     Asset,
@@ -36,17 +40,20 @@ async def add_developer(
     service: DeveloperService = Depends(get_developer_service),
 ):
     return service.add(developer)
-    
 
 
-@router.post("/{id}/activate")
-async def activate(id: uid):
-    pass
+@router.post("/{id}/activate", response_model=bool)
+async def activate(
+    id: uid, service: DeveloperService = Depends(get_developer_service)
+):
+    return service.activate(id)
 
 
-@router.post("/{id}/deactivate")
-async def deactivate(id: uid):
-    pass
+@router.post("/{id}/deactivate", response_model=bool)
+async def deactivate(
+    id: uid, service: DeveloperService = Depends(get_developer_service)
+):
+    return not service.deactivate(id)
 
 
 @router.get("/{id}/assets", response_model=List[Asset])

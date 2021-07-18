@@ -1,9 +1,11 @@
 
 
 class ItemNotFound(Exception):
+    message: str
     def __init__(self, id):
         self.id = id
-        super().__init__(f"Item {id} not found")
+        self.message = f"Item {id} not found"
+        super().__init__(self.message)
 
 class MethodShouldNotBeImplemented(Exception):
     def __init__(self, method:str):
