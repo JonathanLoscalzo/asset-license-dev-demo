@@ -3,12 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from asset_manager.data.repos.assets import AssetRepository
 from asset_manager.data.exceptions import ItemNotFound
 from asset_manager.deps import get_asset_repository, get_current_user
-from asset_manager.models.auth import LoginUser
 
 from asset_manager.models.models import Asset, uid
 
 router = APIRouter(
-    dependencies=[],
+    dependencies=[Depends(get_current_user)],
     responses={404: {"description": "Not found"}},
 )
 
@@ -18,7 +17,6 @@ router = APIRouter(
     response_model=List[Asset],
 )
 async def get_assets(
-    current_user: LoginUser = Depends(get_current_user),
     repo: AssetRepository = Depends(get_asset_repository),
 ) -> List[Asset]:
     return list(map(Asset.from_orm, repo.get_all()))
@@ -28,7 +26,6 @@ async def get_assets(
 async def get_asset(
     id: uid,
     repo: AssetRepository = Depends(get_asset_repository),
-    _: LoginUser = Depends(get_current_user),
 ) -> Asset:
     # TODO: add services and middleware
     try:

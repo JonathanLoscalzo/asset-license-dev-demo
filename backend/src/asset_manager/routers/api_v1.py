@@ -7,4 +7,5 @@ router = APIRouter()
 
 router.include_router(license_router, prefix="/licenses", tags=["licenses"])
 router.include_router(assets_router, prefix="/assets", tags=["assets"])
+router.include_router(assets_router, prefix="/resources", tags=["resources"])
 router.include_router(devs_router, prefix="/developers", tags=["developers"])
