@@ -37,7 +37,7 @@ class MongoRepository(Generic[T]):
         return self.collection().find_one(filter)
 
     def get_all_by_filter(self, filter: dict) -> List[T]:
-        return self.collection().find(filter)
+        return list(map(self.generic_class.parse_obj, self.collection().find(filter)))
 
     def add(self, obj: T) -> Any:
         return self.collection().insert_one(obj.dict()).inserted_id

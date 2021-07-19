@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel
-from typing import Union, Optional, List
+from typing import Any, Union, Optional, List
 from uuid import UUID
 
 from asset_manager.data.schemas.developer import DeveloperMongo
@@ -31,7 +31,7 @@ class Developer(CreateDev, BaseModel):
 class License(BaseModel):
     id: uid
     software: str
-    users: List[Union[Developer, uid]] = []
+    # users: List[Union[Developer, uid]] = []
 
     class Config:
         orm_mode = True
@@ -42,10 +42,19 @@ class Asset(BaseModel):
     brand: str
     model: str
     type: TypeAssetEnum
-    user: Optional[Union[Developer, uid]]
+    user: Optional[Union[Developer, uid, Any]]
 
     class Config:
         orm_mode = True
+
+    def create_from_asset_mongo(asset: Any):
+        return Asset(
+            id=str(asset.id),
+            brand=asset.brand,
+            model=asset.model,
+            type=asset.type,
+            user=str(asset.user),
+        )
 
 
 class FullDeveloper(Developer):

@@ -12,6 +12,7 @@ from asset_manager.models.models import (
     CreateDev,
     Developer,
     FullDeveloper,
+    License,
     uid,
 )
 from asset_manager.models.responses import OutputResponse
@@ -53,9 +54,11 @@ async def deactivate(
     return service.deactivate(id)
 
 
-@router.get("/{id}/assets", response_model=List[Asset])
-async def get_assets(id: uid):
-    pass
+@router.get("/{id}/assets", response_model=OutputResponse[List[Asset]])
+async def get_assets(
+    id: uid, service: DeveloperService = Depends(get_developer_service)
+):
+    return service.get_assets(id)
 
 
 @router.patch("/{user_id}/assets/{asset_id}")
@@ -76,9 +79,11 @@ def remove_asset(
     return service.remove_asset(user_id, asset_id)
 
 
-@router.get("/{id}/licenses", response_model=List[Asset])
-async def get_licenses(id: uid):
-    pass
+@router.get("/{id}/licenses", response_model=OutputResponse[List[License]])
+async def get_licenses(
+    id: uid, service: DeveloperService = Depends(get_developer_service)
+):
+    return service.get_licenses(id)
 
 
 @router.patch("/{user_id}/licenses/{license_id}")

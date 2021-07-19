@@ -16,7 +16,13 @@ from asset_manager.data.schemas.developer import (
     DeveloperMongo,
 )
 from bson import ObjectId
-from asset_manager.models.models import CreateDev, Developer, FullDeveloper
+from asset_manager.models.models import (
+    Asset,
+    CreateDev,
+    Developer,
+    FullDeveloper,
+    License,
+)
 from asset_manager.models.responses import ApiStatus, OutputResponse
 
 
@@ -209,4 +215,42 @@ class DeveloperService:
             data={"dev": developer_id, "asset": asset_id},
             message=f"Removed relationship "
             + f"between Dev({developer_id}) and Asset({asset_id})",
+        )
+
+    def get_licenses(self, developer_id) -> OutputResponse[List[License]]:
+        dev = self.__repository.get(developer_id)
+
+        licenses = list(
+            self._license_repo.get_all_by_filter(
+                {
+                    "$or": [
+                        {"id": {"$in": dev.licenses}},
+                        {"_id": {"$in": dev.licenses}},
+                    ]
+                }
+            )
+        )
+
+        return OutputResponse(
+            data=list(map(License.parse_obj, licenses)),
+            message=f"Returned licenses assigned to Developer {developer_id}",
+        )
+
+    def get_assets(self, developer_id) -> OutputResponse[List[Asset]]:
+        dev = self.__repository.get(developer_id)
+
+        assets = list(
+            self._asset_repo.get_all_by_filter(
+                {
+                    "$or": [
+                        {"id": {"$in": dev.assets}},
+                        {"_id": {"$in": dev.assets}},
+                    ]
+                }
+            )
+        )
+
+        return OutputResponse(
+            data=list(map(Asset.create_from_asset_mongo, assets)),
+            message=f"Returned assets assigned to Developer {developer_id}",
         )

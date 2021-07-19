@@ -11,3 +11,6 @@ class AssetMongo(BaseMongoModel):
     model: str
     type: TypeAssetEnum
     user: Optional[PydanticObjectId]
+
+    class Config:
+        orm_mode = True
