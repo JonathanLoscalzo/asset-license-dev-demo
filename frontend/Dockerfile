@@ -4,7 +4,7 @@ COPY package.json .
 RUN npm i --production --silent
 
 COPY . .
-RUN npm run build --silent
+RUN npm run build:docker --silent
 
 FROM nginx:stable-alpine as serving
 EXPOSE 80
