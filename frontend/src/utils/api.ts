@@ -47,5 +47,8 @@ export const api = {
   },
   async getDevelopers() {
     return AcmeApi().get("/api/v1/developers").then(resp => resp.data)
+  },
+  async createDeveloper(formData: { fullname: string, active: boolean }) {
+    return AcmeApi().post("/api/v1/developers", formData).then(resp => resp.data)
   }
 };

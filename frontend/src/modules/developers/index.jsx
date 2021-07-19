@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
-import { useRouteMatch } from "react-router-dom";
+import { useRouteMatch, useHistory } from "react-router-dom";
 import { api } from "../../utils/api";
+import { Switch, Route, Link, useParams } from "react-router-dom";
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useParams,
-} from "react-router-dom";
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Row,
+  FormFeedback,
+} from "reactstrap";
+import { useFormik } from "formik";
+
+import * as Yup from "yup";
 
 const Developers = () => {
-  let { path, url } = useRouteMatch();
+  let { path } = useRouteMatch();
 
   const [data, setData] = useState({
     developers: [],
@@ -23,7 +29,6 @@ const Developers = () => {
       await api
         .getDevelopers()
         .then((response) => {
-          console.log(response);
           setData({ developers: response, loading: false });
         })
         .catch((error) =>
@@ -31,7 +36,7 @@ const Developers = () => {
         );
     };
     callification();
-  }, []);
+  }, [data.loading]);
 
   if (data.loading) {
     return <>Loading...</>;
@@ -39,9 +44,20 @@ const Developers = () => {
     return (
       <>
         <h2>Developers</h2>
+        <ul>
+          <li>
+            <Link to={`${path}/create`}>Create</Link>
+          </li>
+        </ul>
         <Switch>
           <Route exact path={path}>
             <DevelopersList developers={data.developers} />
+          </Route>
+
+          <Route exact path={`${path}/create`}>
+            <DeveloperCreate
+              setData={({ loading }) => setData({ ...data, loading: loading })}
+            />
           </Route>
 
           <Route path={`${path}/:devId`}>
@@ -72,7 +88,6 @@ const DevelopersList = ({ developers }) => {
 const DeveloperSingle = ({ developers }) => {
   let { devId } = useParams();
   let item = developers.filter((d) => d.id === devId)[0];
-  console.log(developers, devId, item);
   if (item === undefined) {
     return <></>;
   } else {
@@ -85,6 +100,68 @@ const DeveloperSingle = ({ developers }) => {
       </div>
     );
   }
+};
+
+const DeveloperCreate = ({ setData, ...props }) => {
+  const history = useHistory();
+
+  const validationSchema = Yup.object().shape({
+    fullname: Yup.string()
+      .min(2, "Too Short!")
+      .max(50, "Too Long!")
+      .required("Required"),
+    active: Yup.bool().required("Required"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      fullname: "",
+      active: true,
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      api
+        .createDeveloper({ fullname: values.fullname, active: values.active })
+        .then(() => {
+          setData({ loading: true });
+          history.push("/developers");
+        });
+    },
+  });
+
+  return (
+    <Row>
+      <Form onSubmit={formik.handleSubmit}>
+        <FormGroup>
+          <Label for="exampleEmail">Fullname</Label>
+          <Input
+            type="text"
+            name="fullname"
+            id="fullname"
+            placeholder="fullname"
+            onChange={formik.handleChange}
+            value={formik.values.fullname}
+            invalid={formik.errors.fullname}
+          />
+          {formik.errors.fullname && (
+            <FormFeedback>{formik.errors.fullname}</FormFeedback>
+          )}
+        </FormGroup>
+        <FormGroup check>
+          <Label check>
+            <Input
+              type="checkbox"
+              name="active"
+              onChange={formik.handleChange}
+              value={formik.values.active}
+            />{" "}
+            Active?
+          </Label>
+        </FormGroup>
+        <Button type="submit">Submit</Button>
+      </Form>
+    </Row>
+  );
 };
 
 export default Developers;
